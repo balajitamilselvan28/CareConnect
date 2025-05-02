@@ -42,58 +42,58 @@ const users = [
 
 const ngos = [
   {
-    name: 'Education for All',
-    slogan: 'Empowering through Education',
-    location: 'New York, USA',
-    yearEstablished: 2010,
-    website: 'https://educationforall.org',
-    description: 'We provide quality education to underprivileged children.',
+    name: 'Agaram Foundation',
+    slogan: 'Aram Seiya Virumbuvom',
+    location: 'Tamilnadu, India',
+    yearEstablished: 2006,
+    website: 'https://agaram.in/',
+    description: 'Creating positive change in the socio-economic status of rural society by offering quality education and empowering youth with skills for a better future.',
     category: 'Education',
-    photo: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    photo: '/logos/agaram logo.jpg',
     volunteerCount: 0
   },
   {
-    name: 'Green Earth',
-    slogan: 'Protecting Our Planet',
-    location: 'San Francisco, USA',
-    yearEstablished: 2015,
-    website: 'https://greenearth.org',
-    description: 'We work to protect the environment and promote sustainable living.',
-    category: 'Environment',
-    photo: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    volunteerCount: 0
-  },
-  {
-    name: 'Sports for Youth',
-    slogan: 'Building Character Through Sports',
-    location: 'Chicago, USA',
-    yearEstablished: 2012,
-    website: 'https://sportsforyouth.org',
-    description: 'We provide sports opportunities for underprivileged youth.',
-    category: 'Sports',
-    photo: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    volunteerCount: 0
-  },
-  {
-    name: 'Food for All',
-    slogan: 'Ending Hunger Together',
-    location: 'Los Angeles, USA',
-    yearEstablished: 2018,
-    website: 'https://foodforall.org',
-    description: 'We provide food assistance to those in need.',
-    category: 'Food',
-    photo: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    volunteerCount: 0
-  },
-  {
-    name: 'Tech for Good',
-    slogan: 'Technology for Social Change',
-    location: 'Seattle, USA',
+    name: 'Uzhavan Foundation',
+    slogan: 'Paiṟ seiya virumbu',
+    location: 'Tamilnadu, India',
     yearEstablished: 2019,
-    website: 'https://techforgood.org',
-    description: 'We provide technology education and resources to underserved communities.',
-    category: 'Education',
-    photo: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    website: 'https://uzhavanfoundation.in/',
+    description: 'Promote sustainable and environmentally friendly farming practices',
+    category: 'Environment',
+    photo: '/logos/uzhavan logo.jpg',
+    volunteerCount: 0
+  },
+  {
+    name: 'Victory Foundation',
+    slogan: 'Coz everyone deserves a win',
+    location: 'Tamilnadu, India',
+    yearEstablished: 2008,
+    website: 'https://victorysportsfoundation.org/',
+    description: 'mission is to empower marginalized children and youth through sports, fostering self-confidence, integrity, and talent',
+    category: 'Other',
+    photo: '/logos/victory logo.jpg',
+    volunteerCount: 0
+  },
+  {
+    name: 'Help On Hunger',
+    slogan: 'Living in a Home',
+    location: 'Tamilnadu , India',
+    yearEstablished: 2018,
+    website: 'https://helponhunger.org/',
+    description: 'We provide food assistance to those in need through community pantries, meal programs, and emergency food services. We believe everyone deserves access to nutritious food.',
+    category: 'Community Development',
+    photo: '/logos/help on hunger logo.jpg',
+    volunteerCount: 0
+  },
+  {
+    name: 'EKAM Foundation',
+    slogan: 'enhancing maternal and child health',
+    location: 'Tamilnadu, India',
+    yearEstablished: 2019,
+    website: 'https://ekam.ngo/',
+    description: 'To ensure that no child or mother is denied access to quality healthcare due to financial constraints',
+    category: 'Health',
+    photo: '/logos/ekamfoundation logo.jpg',
     volunteerCount: 0
   }
 ];
@@ -101,32 +101,32 @@ const ngos = [
 const posts = [
   {
     title: 'Summer Camp Registration',
-    description: 'Join our summer camp for underprivileged children.',
-    photo: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    description: 'Join our summer camp for underprivileged children. Activities include arts and crafts, sports, nature exploration, and educational workshops. Limited spots available, register early!',
+    photo: '/images/agaram events.jpg',
     eventDate: '2024-07-01'
   },
   {
     title: 'Tree Planting Day',
-    description: 'Help us plant 1000 trees in the city park.',
-    photo: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    description: 'Help us plant 1000 trees in the city park. Join our environmental conservation efforts to create a greener future. Tools and refreshments will be provided for all volunteers.',
+    photo: '/images/agaram post.jpg',
     eventDate: '2024-06-15'
   },
   {
     title: 'Basketball Tournament',
-    description: 'Annual basketball tournament for youth.',
-    photo: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    description: 'Annual basketball tournament for youth. Teams from across the city will compete in this exciting event. Prizes for winners and participation certificates for all players.',
+    photo: '/images/agaram 1 (1).jpg',
     eventDate: '2024-08-01'
   },
   {
     title: 'Food Drive',
-    description: 'Help us collect food for those in need.',
-    photo: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    description: 'Help us collect food for those in need. We\'re accepting non-perishable food items, canned goods, and hygiene products. Your donations will directly support local families facing food insecurity.',
+    photo: '/images/agaram 1 (2).jpg',
     eventDate: '2024-06-20'
   },
   {
     title: 'Coding Workshop',
-    description: 'Learn coding basics in our free workshop.',
-    photo: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    description: 'Learn coding basics in our free workshop. Perfect for beginners with no prior experience. Topics include HTML, CSS, and JavaScript fundamentals. Laptops will be provided for participants.',
+    photo: '/images/agaram logo.jpg',
     eventDate: '2024-07-15'
   }
 ];

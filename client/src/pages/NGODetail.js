@@ -5,24 +5,150 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { getSafeImageUrl, handleImageError } from '../utils/imageUtils';
 
+// Function to get category-specific images
+const getCategoryImage = (category) => {
+  switch (category) {
+    case 'Education':
+      return 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    case 'Health':
+      return 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    case 'Environment':
+      return 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    case 'Animal Welfare':
+      return 'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    case 'Human Rights':
+      return 'https://images.unsplash.com/photo-1591189824935-9d120b2f0f7a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    case 'Disaster Relief':
+      return 'https://images.unsplash.com/photo-1464938050520-ef2270bb8ce8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    case 'Community Development':
+      return 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    default:
+      return 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+  }
+};
+
+// Add custom animations for the NGO detail page
+const animations = `
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+  }
+  
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+  
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+`;
+
+// Add the animations to the document
+const style = document.createElement('style');
+style.type = 'text/css';
+style.appendChild(document.createTextNode(animations));
+document.head.appendChild(style);
+
 // Care Connect theme styles with blue and green colors
 const styles = {
   header: {
-    background: 'linear-gradient(135deg, rgba(0, 128, 128, 0.15) 0%, rgba(0, 102, 204, 0.15) 100%)',
-    borderBottom: '1px solid rgba(0, 128, 128, 0.2)',
+    background: 'linear-gradient(135deg, rgba(128, 244, 78, 0.2) 0%, rgba(78, 219, 244, 0.2) 100%)',
+    backgroundSize: '200% 200%',
+    animation: 'gradientShift 15s ease infinite',
+    borderBottom: '1px solid rgba(128, 244, 78, 0.2)',
     position: 'relative',
     overflow: 'hidden',
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'url("/leaf-pattern.png")',
-      opacity: 0.1,
-      zIndex: 0
-    }
+    boxShadow: '0 10px 30px rgba(78, 219, 244, 0.08)',
   },
   card: {
     border: '1px solid rgba(0, 128, 128, 0.1)',
@@ -101,103 +227,433 @@ const styles = {
 };
 
 // Sample posts data
-const samplePosts = [
-  {
+// Function to generate NGO-specific posts
+const getNGOSpecificPosts = (ngo) => {
+  if (!ngo) return [];
+  
+  // Define category-specific post data
+  const postsByCategory = {
+    'Education': [
+      {
+        _id: '1',
+        title: 'Literacy Program Success',
+        content: `Our literacy program in ${ngo.location} has successfully taught 200 children to read and write! Thank you to all our amazing volunteers and donors who made this possible.`,
+        image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Education image
+        createdAt: new Date('2024-03-15'),
+        likes: 245,
+        comments: [
+          { _id: '1', text: 'Amazing work!', user: 'John Doe' },
+          { _id: '2', text: 'Can\'t wait to volunteer for the next program!', user: 'Jane Smith' }
+        ]
+      }
+    ],
+    'Health': [
+      {
+        _id: '1',
+        title: 'Medical Camp Success',
+        content: `Our recent medical camp in ${ngo.location} provided free healthcare services to over 500 people! Thank you to all the doctors, nurses, and volunteers who contributed.`,
+        image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Health image
+        createdAt: new Date('2024-03-10'),
+        likes: 320,
+        comments: [
+          { _id: '1', text: 'This is incredible work!', user: 'Dr. Smith' },
+          { _id: '2', text: 'Proud to be part of this initiative!', user: 'Nurse Johnson' }
+        ]
+      }
+    ],
+    'Environment': [
+      {
+        _id: '1',
+        title: 'Tree Planting Day Success',
+        content: `We successfully planted 500 trees in ${ngo.location}! This initiative will help combat climate change and improve air quality in our community. Thank you to all our amazing volunteers who made this possible.`,
+        image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Environment image
+        createdAt: new Date('2024-03-15'),
+        likes: 245,
+        comments: [
+          { _id: '1', text: 'Amazing work for our planet!', user: 'John Doe' },
+          { _id: '2', text: 'Can\'t wait for the next planting event!', user: 'Jane Smith' }
+        ]
+      }
+    ],
+    'Animal Welfare': [
+      {
+        _id: '1',
+        title: 'Animal Rescue Success',
+        content: `Our team successfully rescued and rehabilitated 30 stray animals in ${ngo.location} this month! All of them have found loving homes. Thank you to our dedicated volunteers and generous donors.`,
+        image: 'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Animal image
+        createdAt: new Date('2024-03-12'),
+        likes: 278,
+        comments: [
+          { _id: '1', text: 'This warms my heart!', user: 'Pet Lover' },
+          { _id: '2', text: 'Thank you for your amazing work!', user: 'Animal Friend' }
+        ]
+      }
+    ],
+    'Human Rights': [
+      {
+        _id: '1',
+        title: 'Legal Aid Camp Success',
+        content: `Our legal aid camp in ${ngo.location} provided free legal assistance to over 100 underprivileged individuals. We're committed to ensuring justice for all. Thank you to all the lawyers and volunteers who participated.`,
+        image: 'https://images.unsplash.com/photo-1591189824935-9d120b2f0f7a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Human Rights image
+        createdAt: new Date('2024-03-08'),
+        likes: 198,
+        comments: [
+          { _id: '1', text: 'Justice for all!', user: 'Legal Eagle' },
+          { _id: '2', text: 'Proud to support this cause!', user: 'Rights Advocate' }
+        ]
+      }
+    ],
+    'Disaster Relief': [
+      {
+        _id: '1',
+        title: 'Flood Relief Success',
+        content: `Our team provided emergency supplies and shelter to 200 families affected by recent floods in ${ngo.location}. We're continuing our efforts to help rebuild homes. Thank you to all donors and volunteers.`,
+        image: 'https://images.unsplash.com/photo-1464938050520-ef2270bb8ce8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Disaster Relief image
+        createdAt: new Date('2024-03-05'),
+        likes: 312,
+        comments: [
+          { _id: '1', text: 'Thank you for your quick response!', user: 'Community Member' },
+          { _id: '2', text: 'How can we contribute more?', user: 'Willing Helper' }
+        ]
+      }
+    ],
+    'Community Development': [
+      {
+        _id: '1',
+        title: 'Community Center Inauguration',
+        content: `We're proud to announce the opening of our new community center in ${ngo.location}! This space will provide educational resources, vocational training, and a safe gathering place for local residents. Thank you to everyone who contributed to this project.`,
+        image: 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Community Development image
+        createdAt: new Date('2024-03-18'),
+        likes: 267,
+        comments: [
+          { _id: '1', text: 'This is exactly what our community needed!', user: 'Local Resident' },
+          { _id: '2', text: 'Looking forward to the programs!', user: 'Community Supporter' }
+        ]
+      }
+    ]
+  };
+  
+  // Default post if category doesn't match or is undefined
+  const defaultPost = {
     _id: '1',
-    title: 'Tree Planting Day Success',
-    content: 'We successfully planted 500 trees in Central Park! Thank you to all our amazing volunteers who made this possible.',
-    image: 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
+    title: `${ngo.name} Recent Success`,
+    content: `We're making a difference in ${ngo.location}! Thanks to our dedicated volunteers and generous donors, we've been able to impact hundreds of lives positively. Stay tuned for more updates on our ongoing projects.`,
+    image: 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Default image
     createdAt: new Date('2024-03-15'),
     likes: 245,
     comments: [
-      { _id: '1', text: 'Amazing work!', user: 'John Doe' },
-      { _id: '2', text: 'Can\'t wait for the next event!', user: 'Jane Smith' }
+      { _id: '1', text: 'Great work!', user: 'John Doe' },
+      { _id: '2', text: 'Proud to support this cause!', user: 'Jane Smith' }
     ]
-  },
-  {
-    _id: '2',
-    title: 'Wildlife Conservation Update',
-    content: 'Our team successfully rescued and rehabilitated 10 endangered species this month. Every life matters!',
-    image: 'https://images.unsplash.com/photo-1534567110353-1f46d070c2c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
-    createdAt: new Date('2024-03-10'),
-    likes: 189,
-    comments: [
-      { _id: '3', text: 'Thank you for your dedication!', user: 'Mike Johnson' }
-    ]
-  },
-  {
-    _id: '3',
-    title: 'Community Clean-up Drive',
-    content: 'Together we collected over 1000 kg of waste from our local beaches. Let\'s keep our oceans clean!',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
-    createdAt: new Date('2024-03-05'),
-    likes: 312,
-    comments: [
-      { _id: '4', text: 'Great initiative!', user: 'Sarah Wilson' },
-      { _id: '5', text: 'Count me in for next time!', user: 'Tom Brown' }
-    ]
-  }
-];
+  };
+  
+  // Return category-specific post or default one
+  return postsByCategory[ngo.category] || [defaultPost];
+};
 
-// Sample events data
-const sampleEvents = [
-  {
+// Function to generate NGO-specific events
+const getNGOSpecificEvents = (ngo) => {
+  if (!ngo) return [];
+  
+  // Define category-specific event data
+  const eventsByCategory = {
+    'Education': [
+      {
+        _id: '1',
+        title: 'Education for All Workshop',
+        description: `Join ${ngo.name} for a day of educational workshops, teaching demonstrations, and community learning activities. Help us make education accessible to everyone in ${ngo.location}.`,
+        image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Education event image
+        date: '2024-04-15',
+        time: '9:00 AM - 3:00 PM',
+        location: ngo.location,
+        registeredCount: 120
+      }
+    ],
+    'Health': [
+      {
+        _id: '1',
+        title: 'Health Awareness Camp',
+        description: `${ngo.name} invites you to our health awareness camp featuring free check-ups, health education sessions, and wellness workshops. Together, let's build a healthier community in ${ngo.location}.`,
+        image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Health event image
+        date: '2024-04-18',
+        time: '10:00 AM - 4:00 PM',
+        location: ngo.location,
+        registeredCount: 180
+      }
+    ],
+    'Environment': [
+      {
+        _id: '1',
+        title: 'Earth Day Celebration',
+        description: `Join ${ngo.name} for a day of environmental awareness, tree planting, clean-up drives, and eco-friendly workshops. Let's work together to protect our planet, starting with ${ngo.location}.`,
+        image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Environment event image
+        date: '2024-04-22',
+        time: '10:00 AM - 4:00 PM',
+        location: ngo.location,
+        registeredCount: 150
+      }
+    ],
+    'Animal Welfare': [
+      {
+        _id: '1',
+        title: 'Animal Adoption Day',
+        description: `${ngo.name} is hosting an adoption day for rescued animals. Come meet potential furry friends, learn about responsible pet ownership, and support our animal welfare initiatives in ${ngo.location}.`,
+        image: 'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Animal event image
+        date: '2024-04-20',
+        time: '11:00 AM - 5:00 PM',
+        location: ngo.location,
+        registeredCount: 90
+      }
+    ],
+    'Human Rights': [
+      {
+        _id: '1',
+        title: 'Rights Awareness Workshop',
+        description: `${ngo.name} invites you to a workshop on understanding and protecting your rights. Legal experts will provide guidance on accessing justice and standing up for equality in ${ngo.location}.`,
+        image: 'https://images.unsplash.com/photo-1591189824935-9d120b2f0f7a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Human Rights event image
+        date: '2024-04-25',
+        time: '2:00 PM - 6:00 PM',
+        location: ngo.location,
+        registeredCount: 110
+      }
+    ],
+    'Disaster Relief': [
+      {
+        _id: '1',
+        title: 'Disaster Preparedness Training',
+        description: `Join ${ngo.name} for essential disaster preparedness training. Learn life-saving skills, emergency response techniques, and how to protect your community in ${ngo.location} during natural disasters.`,
+        image: 'https://images.unsplash.com/photo-1464938050520-ef2270bb8ce8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Disaster Relief event image
+        date: '2024-04-28',
+        time: '9:00 AM - 5:00 PM',
+        location: ngo.location,
+        registeredCount: 130
+      }
+    ],
+    'Community Development': [
+      {
+        _id: '1',
+        title: 'Community Building Workshop',
+        description: `${ngo.name} is organizing a community building workshop featuring skill development sessions, networking opportunities, and collaborative projects to strengthen our community in ${ngo.location}.`,
+        image: 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Community Development event image
+        date: '2024-04-30',
+        time: '10:00 AM - 4:00 PM',
+        location: ngo.location,
+        registeredCount: 140
+      }
+    ]
+  };
+  
+  // Default event if category doesn't match or is undefined
+  const defaultEvent = {
     _id: '1',
-    title: 'Earth Day Celebration',
-    description: 'Join us for a day of environmental awareness, workshops, and community activities.',
-    image: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
+    title: `${ngo.name} Community Event`,
+    description: `Join us for a day of community engagement, awareness activities, and collaborative initiatives. Together, we can make a difference in ${ngo.location}.`,
+    image: 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Default event image
     date: '2024-04-22',
     time: '10:00 AM - 4:00 PM',
-    location: 'Central Park, New York',
+    location: ngo.location,
     registeredCount: 150
-  },
-  {
-    _id: '2',
-    title: 'Wildlife Photography Workshop',
-    description: 'Learn wildlife photography techniques from experts and capture the beauty of nature.',
-    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
-    date: '2024-04-15',
-    time: '9:00 AM - 2:00 PM',
-    location: 'Wildlife Sanctuary, San Francisco',
-    registeredCount: 45
-  },
-  {
-    _id: '3',
-    title: 'Sustainable Living Seminar',
-    description: 'Discover practical ways to reduce your carbon footprint and live more sustainably.',
-    image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
-    date: '2024-04-08',
-    time: '2:00 PM - 5:00 PM',
-    location: 'Community Center, Seattle',
-    registeredCount: 75
-  }
-];
+  };
+  
+  // Return category-specific event or default one
+  return eventsByCategory[ngo.category] || [defaultEvent];
+};
 
-// Add sample internship data
-const sampleInternships = [
-  {
-    _id: '1',
-    title: 'Environmental Research Intern',
-    description: 'Join our research team to study local ecosystem changes and contribute to conservation efforts.',
-    requirements: ['Environmental Science background', 'Field research experience', 'Data analysis skills'],
-    duration: '3 months',
-    stipend: '$1000/month',
-    location: 'New York Office',
-    postedDate: new Date('2024-03-20'),
-    deadline: '2024-04-15'
-  },
-  {
-    _id: '2',
-    title: 'Social Media & Content Intern',
-    description: 'Help us create engaging content and manage our social media presence to spread awareness.',
-    requirements: ['Social media management', 'Content creation', 'Basic graphic design'],
-    duration: '2 months',
-    stipend: '$800/month',
-    location: 'Remote',
-    postedDate: new Date('2024-03-18'),
-    deadline: '2024-04-10'
-  }
-];
+// Initialize with empty arrays, will be populated in useEffect
+const samplePosts = [];
+const sampleEvents = [];
+
+// Function to generate NGO-specific internship data
+const getNGOSpecificInternships = (ngo) => {
+  if (!ngo) return [];
+  
+  // Define category-specific internship data
+  const internshipsByCategory = {
+    'Education': [
+      {
+        _id: '1',
+        title: 'Education Program Coordinator Intern',
+        description: `Join ${ngo.name}'s education team to help develop and implement educational programs for underprivileged children in ${ngo.location}.`,
+        requirements: ['Education background', 'Experience working with children', 'Curriculum development skills'],
+        duration: '6 months',
+        stipend: '₹15,000/month',
+        postedDate: new Date('2024-03-15'),
+        deadline: '2024-04-30'
+      },
+      {
+        _id: '2',
+        title: 'Digital Learning Specialist',
+        description: `Help ${ngo.name} create digital learning materials and online courses for students in ${ngo.location}.`,
+        requirements: ['Educational technology experience', 'Content creation skills', 'Basic programming knowledge'],
+        duration: '4 months',
+        stipend: '₹12,000/month',
+        postedDate: new Date('2024-03-10'),
+        deadline: '2024-04-20'
+      }
+    ],
+    'Health': [
+      {
+        _id: '1',
+        title: 'Community Health Intern',
+        description: `Support ${ngo.name}'s health initiatives by conducting health awareness campaigns in ${ngo.location}.`,
+        requirements: ['Healthcare background', 'Public health knowledge', 'Communication skills'],
+        duration: '3 months',
+        stipend: '₹18,000/month',
+        postedDate: new Date('2024-03-05'),
+        deadline: '2024-04-15'
+      },
+      {
+        _id: '2',
+        title: 'Medical Camp Coordinator',
+        description: `Help organize and manage medical camps for underserved communities in ${ngo.location}.`,
+        requirements: ['Healthcare administration experience', 'Event management skills', 'First aid certification'],
+        duration: '5 months',
+        stipend: '₹20,000/month',
+        postedDate: new Date('2024-03-12'),
+        deadline: '2024-04-25'
+      }
+    ],
+    'Environment': [
+      {
+        _id: '1',
+        title: 'Environmental Research Intern',
+        description: `Join ${ngo.name}'s research team to study local ecosystem changes and contribute to conservation efforts in ${ngo.location}.`,
+        requirements: ['Environmental Science background', 'Field research experience', 'Data analysis skills'],
+        duration: '3 months',
+        stipend: '₹16,000/month',
+        postedDate: new Date('2024-03-20'),
+        deadline: '2024-04-15'
+      },
+      {
+        _id: '2',
+        title: 'Sustainable Agriculture Specialist',
+        description: `Work with local farmers in ${ngo.location} to implement sustainable farming practices and reduce environmental impact.`,
+        requirements: ['Agricultural knowledge', 'Sustainability expertise', 'Community outreach experience'],
+        duration: '6 months',
+        stipend: '₹22,000/month',
+        postedDate: new Date('2024-03-08'),
+        deadline: '2024-04-22'
+      }
+    ],
+    'Animal Welfare': [
+      {
+        _id: '1',
+        title: 'Animal Rescue Coordinator',
+        description: `Assist ${ngo.name} in coordinating animal rescue operations and rehabilitation programs in ${ngo.location}.`,
+        requirements: ['Veterinary background', 'Animal handling experience', 'Emergency response training'],
+        duration: '4 months',
+        stipend: '₹14,000/month',
+        postedDate: new Date('2024-03-18'),
+        deadline: '2024-04-28'
+      },
+      {
+        _id: '2',
+        title: 'Wildlife Conservation Intern',
+        description: `Support ${ngo.name}'s wildlife conservation initiatives and habitat protection programs in ${ngo.location}.`,
+        requirements: ['Zoology/Wildlife biology background', 'Conservation experience', 'Field research skills'],
+        duration: '5 months',
+        stipend: '₹18,000/month',
+        postedDate: new Date('2024-03-14'),
+        deadline: '2024-04-24'
+      }
+    ],
+    'Human Rights': [
+      {
+        _id: '1',
+        title: 'Legal Aid Intern',
+        description: `Assist ${ngo.name}'s legal team in providing legal support to marginalized communities in ${ngo.location}.`,
+        requirements: ['Law background', 'Human rights knowledge', 'Legal research skills'],
+        duration: '6 months',
+        stipend: '₹20,000/month',
+        postedDate: new Date('2024-03-10'),
+        deadline: '2024-04-20'
+      },
+      {
+        _id: '2',
+        title: 'Advocacy Campaign Coordinator',
+        description: `Help develop and implement advocacy campaigns for human rights issues in ${ngo.location}.`,
+        requirements: ['Public policy knowledge', 'Campaign management experience', 'Social media skills'],
+        duration: '4 months',
+        stipend: '₹16,000/month',
+        postedDate: new Date('2024-03-15'),
+        deadline: '2024-04-25'
+      }
+    ],
+    'Disaster Relief': [
+      {
+        _id: '1',
+        title: 'Emergency Response Coordinator',
+        description: `Support ${ngo.name}'s disaster preparedness and response initiatives in ${ngo.location}.`,
+        requirements: ['Emergency management background', 'First aid certification', 'Logistics experience'],
+        duration: '3 months',
+        stipend: '₹22,000/month',
+        postedDate: new Date('2024-03-05'),
+        deadline: '2024-04-15'
+      },
+      {
+        _id: '2',
+        title: 'Relief Distribution Specialist',
+        description: `Coordinate relief material distribution and aid management for affected communities in ${ngo.location}.`,
+        requirements: ['Supply chain management', 'Inventory control experience', 'Community outreach skills'],
+        duration: '4 months',
+        stipend: '₹18,000/month',
+        postedDate: new Date('2024-03-12'),
+        deadline: '2024-04-22'
+      }
+    ],
+    'Community Development': [
+      {
+        _id: '1',
+        title: 'Community Outreach Intern',
+        description: `Work with ${ngo.name} to develop and implement community development programs in ${ngo.location}.`,
+        requirements: ['Social work background', 'Community engagement experience', 'Program management skills'],
+        duration: '5 months',
+        stipend: '₹15,000/month',
+        postedDate: new Date('2024-03-18'),
+        deadline: '2024-04-28'
+      },
+      {
+        _id: '2',
+        title: 'Microfinance Program Coordinator',
+        description: `Support ${ngo.name}'s microfinance initiatives for small entrepreneurs in ${ngo.location}.`,
+        requirements: ['Finance/Economics background', 'Microfinance knowledge', 'Community development experience'],
+        duration: '6 months',
+        stipend: '₹20,000/month',
+        postedDate: new Date('2024-03-14'),
+        deadline: '2024-04-24'
+      }
+    ]
+  };
+  
+  // Default internships if category doesn't match or is undefined
+  const defaultInternships = [
+    {
+      _id: '1',
+      title: `Program Development Intern at ${ngo.name}`,
+      description: `Join ${ngo.name}'s team to help develop and implement various programs in ${ngo.location}.`,
+      requirements: ['Relevant educational background', 'Good communication skills', 'Passion for social work'],
+      duration: '4 months',
+      stipend: '₹15,000/month',
+      postedDate: new Date('2024-03-15'),
+      deadline: '2024-04-25'
+    },
+    {
+      _id: '2',
+      title: `Social Media & Outreach Intern`,
+      description: `Help ${ngo.name} expand its digital presence and community outreach in ${ngo.location}.`,
+      requirements: ['Digital marketing skills', 'Content creation experience', 'Social media management'],
+      duration: '3 months',
+      stipend: '₹12,000/month',
+      postedDate: new Date('2024-03-10'),
+      deadline: '2024-04-20'
+    }
+  ];
+  
+  // Return category-specific internships or default ones
+  return internshipsByCategory[ngo.category] || defaultInternships;
+};
+
+// We'll use a state variable for internships instead of a constant
 
 const NGODetail = () => {
   const { id } = useParams();
@@ -210,6 +666,7 @@ const NGODetail = () => {
   const [notification, setNotification] = useState(null);
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
+  const [sampleInternships, setSampleInternships] = useState([]);
   const [activeTab, setActiveTab] = useState('posts'); // 'posts', 'events', or 'internships'
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [showLikeAnimation, setShowLikeAnimation] = useState(null);
@@ -239,11 +696,51 @@ const NGODetail = () => {
           throw new Error('Failed to load NGO data');
         }
 
-        setNGO(ngoRes.data.data);
+        const ngoData = ngoRes.data.data;
+        setNGO(ngoData);
 
-        // Use sample data for posts and events
-        setPosts(samplePosts);
-        setEvents(sampleEvents);
+        // Generate NGO-specific internships based on category
+        const internships = getNGOSpecificInternships(ngoData);
+        console.log('Generated internships for NGO:', internships);
+
+        // Fetch real posts for this NGO
+        try {
+          const postsRes = await axios.get(`http://localhost:5001/api/posts?ngo=${id}`);
+          if (postsRes.data && postsRes.data.success && postsRes.data.data && postsRes.data.data.length > 0) {
+            // If we have real posts, use them
+            // Format the posts to match the expected structure
+            const formattedPosts = postsRes.data.data.map(post => ({
+              _id: post._id,
+              title: post.title,
+              content: post.description,
+              image: post.photo,
+              createdAt: post.createdAt || new Date(),
+              likes: 0,
+              comments: []
+            }));
+            // Only use one post per NGO
+            setPosts([formattedPosts[0]]);
+          } else {
+            // If no real posts, use NGO-specific posts
+            const ngoPosts = getNGOSpecificPosts(ngoData);
+            console.log('Generated posts for NGO:', ngoPosts);
+            setPosts(ngoPosts);
+          }
+        } catch (error) {
+          console.error('Error fetching posts:', error);
+          // If error, use NGO-specific posts
+          const ngoPosts = getNGOSpecificPosts(ngoData);
+          console.log('Generated posts for NGO (after error):', ngoPosts);
+          setPosts(ngoPosts);
+        }
+
+        // Generate NGO-specific events
+        const ngoEvents = getNGOSpecificEvents(ngoData);
+        console.log('Generated events for NGO:', ngoEvents);
+        setEvents(ngoEvents);
+
+        // Set the internships
+        setSampleInternships(internships);
 
         setLoading(false);
       } catch (err) {
@@ -413,21 +910,112 @@ const NGODetail = () => {
           }
         `}
       </style>
-      {/* NGO Header */}
+      {/* NGO Header with Enhanced Animations */}
       <div className="py-5" style={styles.header}>
+        {/* Animated Floating Elements */}
+        <div style={{
+          position: 'absolute',
+          top: '15%',
+          left: '10%',
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, rgba(128, 244, 78, 0.4) 0%, rgba(78, 219, 244, 0.4) 100%)',
+          animation: 'float 6s ease-in-out infinite, pulse 4s ease-in-out infinite',
+          zIndex: 1
+        }}></div>
+        
+        <div style={{
+          position: 'absolute',
+          top: '25%',
+          right: '15%',
+          width: '30px',
+          height: '30px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, rgba(78, 219, 244, 0.4) 0%, rgba(128, 244, 78, 0.4) 100%)',
+          animation: 'float 8s ease-in-out infinite 1s, pulse 5s ease-in-out infinite 0.5s',
+          zIndex: 1
+        }}></div>
+        
+        <div style={{
+          position: 'absolute',
+          bottom: '20%',
+          left: '20%',
+          width: '40px',
+          height: '40px',
+          borderRadius: '8px',
+          transform: 'rotate(45deg)',
+          background: 'linear-gradient(135deg, rgba(128, 244, 78, 0.3) 0%, rgba(78, 219, 244, 0.3) 100%)',
+          animation: 'float 7s ease-in-out infinite 0.5s',
+          zIndex: 1
+        }}></div>
+        
         <div className="container">
           <div className="row align-items-center">
-            <div className="col-md-2 text-center">
-              <img
-                src={getSafeImageUrl(ngo.photo)}
-                alt={ngo.name}
-                style={styles.profileImage}
-                onError={handleImageError}
-              />
+            <div className="col-md-2 text-center" style={{ animation: 'fadeInLeft 0.8s ease-out' }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '160px',
+                  height: '160px',
+                  borderRadius: '50%',
+                  border: '2px solid rgba(128, 244, 78, 0.3)',
+                  animation: 'pulse 2s infinite'
+                }}></div>
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '180px',
+                  height: '180px',
+                  borderRadius: '50%',
+                  border: '2px solid rgba(78, 219, 244, 0.3)',
+                  animation: 'pulse 2s infinite 0.5s'
+                }}></div>
+                <img
+                  src={getSafeImageUrl(ngo.photo)}
+                  alt={ngo.name}
+                  style={{
+                    ...styles.profileImage,
+                    animation: 'float 6s ease-in-out infinite',
+                    position: 'relative',
+                    zIndex: 2
+                  }}
+                  onError={handleImageError}
+                />
+              </div>
             </div>
-            <div className="col-md-7">
-              <h1 className="mb-3 fw-bold" style={{ color: '#008080' }}>{ngo.name}</h1>
-              <p className="lead mb-3" style={{ color: '#0066CC' }}>{ngo.slogan}</p>
+            <div className="col-md-7" style={{ animation: 'fadeInRight 0.8s ease-out' }}>
+              <h1 className="mb-3 fw-bold" style={{ 
+                background: 'linear-gradient(90deg, #80f44e, #4edbf4)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                display: 'inline-block',
+                position: 'relative'
+              }}>
+                {ngo.name}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-5px',
+                  left: '0',
+                  width: '60%',
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #80f44e, #4edbf4)',
+                  borderRadius: '2px',
+                  animation: 'gradientShift 3s ease infinite'
+                }}></div>
+              </h1>
+              <p className="lead mb-3" style={{ 
+                color: '#0066CC',
+                animation: 'fadeInUp 1s ease-out',
+                fontStyle: 'italic',
+                borderLeft: '3px solid rgba(128, 244, 78, 0.7)',
+                paddingLeft: '10px'
+              }}>"{ngo.slogan}"</p>
               <div className="mb-3">
                 {/* Location with map marker icon */}
                 <p className="mb-2" style={{ color: '#008080' }}>
@@ -761,51 +1349,169 @@ const NGODetail = () => {
               </div>
             )}
 
-            {/* Internships Feed */}
+            {/* Internships Feed with Enhanced Animations */}
             {activeTab === 'internships' && (
               <div className="internships-feed">
-                {sampleInternships.map((internship) => (
-                  <div key={internship._id} className="card mb-4" style={styles.card}>
+                {sampleInternships.map((internship, index) => (
+                  <div 
+                    key={internship._id} 
+                    className="card mb-4" 
+                    style={{
+                      ...styles.card,
+                      animation: `fadeInUp 0.6s ease-out ${0.1 * index}s`,
+                      animationFillMode: 'both',
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 255, 240, 0.95) 100%)',
+                      borderLeft: '4px solid #80f44e',
+                      transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-10px)';
+                      e.currentTarget.style.boxShadow = '0 15px 30px rgba(0, 128, 128, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 102, 204, 0.1)';
+                    }}
+                  >
                     <div className="card-body">
-                      <h5 className="card-title text-success">{internship.title}</h5>
-                      <p className="card-text">{internship.description}</p>
-                      <div className="mb-3">
-                        <h6 className="text-success">Requirements:</h6>
-                        <ul className="list-unstyled">
-                          {internship.requirements.map((req, index) => (
-                            <li key={index} className="mb-1">
-                              <i className="fas fa-check-circle text-success me-2"></i>
+                      {/* Internship title with NGO name */}
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        marginBottom: '15px'
+                      }}>
+                        <h5 className="card-title mb-0" style={{ 
+                          background: 'linear-gradient(90deg, #80f44e, #4edbf4)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          display: 'inline-block',
+                          fontWeight: 'bold',
+                          animation: 'fadeInLeft 0.8s ease-out'
+                        }}>{internship.title}</h5>
+                        <span style={{
+                          background: 'linear-gradient(135deg, rgba(128, 244, 78, 0.9) 0%, rgba(78, 219, 244, 0.9) 100%)',
+                          padding: '5px 15px',
+                          borderRadius: '20px',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '0.8rem',
+                          animation: 'pulse 2s infinite'
+                        }}>
+                          {ngo.name}
+                        </span>
+                      </div>
+                      
+                      <p className="card-text" style={{ animation: 'fadeInUp 0.9s ease-out' }}>
+                        {internship.description}
+                      </p>
+                      
+                      <div className="mb-3" style={{ animation: 'fadeInUp 1s ease-out' }}>
+                        <h6 style={{ 
+                          color: '#008080',
+                          fontWeight: 'bold',
+                          borderBottom: '2px solid rgba(128, 244, 78, 0.3)',
+                          paddingBottom: '5px',
+                          display: 'inline-block'
+                        }}>Requirements:</h6>
+                        <ul className="list-unstyled mt-2">
+                          {internship.requirements.map((req, reqIndex) => (
+                            <li key={reqIndex} className="mb-2" style={{
+                              animation: `fadeInLeft ${0.8 + (reqIndex * 0.1)}s ease-out`,
+                              animationFillMode: 'both',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}>
+                              <i className="fas fa-check-circle me-2" style={{ 
+                                color: '#80f44e',
+                                animation: `pulse 2s infinite ${reqIndex * 0.2}s`
+                              }}></i>
                               {req}
                             </li>
                           ))}
                         </ul>
                       </div>
-                      <div className="row mb-3">
+                      
+                      <div className="row mb-3" style={{ animation: 'fadeInUp 1.1s ease-out' }}>
                         <div className="col-md-6">
-                          <p className="mb-1">
-                            <i className="fas fa-clock me-2 text-success"></i>
-                            Duration: {internship.duration}
+                          <p className="mb-2" style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '5px 10px',
+                            borderRadius: '5px',
+                            background: 'rgba(128, 244, 78, 0.1)'
+                          }}>
+                            <i className="fas fa-clock me-2" style={{ 
+                              color: '#4edbf4',
+                              animation: 'pulse 2s infinite'
+                            }}></i>
+                            <strong>Duration:</strong> <span className="ms-1">{internship.duration}</span>
                           </p>
-                          <p className="mb-1">
-                            <i className="fas fa-money-bill-wave me-2 text-success"></i>
-                            Stipend: {internship.stipend}
+                          <p className="mb-2" style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '5px 10px',
+                            borderRadius: '5px',
+                            background: 'rgba(78, 219, 244, 0.1)'
+                          }}>
+                            <i className="fas fa-money-bill-wave me-2" style={{ 
+                              color: '#80f44e',
+                              animation: 'pulse 2s infinite 0.3s'
+                            }}></i>
+                            <strong>Stipend:</strong> <span className="ms-1">{internship.stipend}</span>
                           </p>
                         </div>
                         <div className="col-md-6">
-                          <p className="mb-1">
-                            <i className="fas fa-map-marker-alt me-2 text-success"></i>
-                            Location: {internship.location}
+                          <p className="mb-2" style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '5px 10px',
+                            borderRadius: '5px',
+                            background: 'rgba(128, 244, 78, 0.1)'
+                          }}>
+                            <i className="fas fa-map-marker-alt me-2" style={{ 
+                              color: '#4edbf4',
+                              animation: 'pulse 2s infinite 0.6s'
+                            }}></i>
+                            <strong>Location:</strong> <span className="ms-1">{ngo.location}</span>
                           </p>
-                          <p className="mb-1">
-                            <i className="fas fa-calendar-times me-2 text-success"></i>
-                            Deadline: {new Date(internship.deadline).toLocaleDateString()}
+                          <p className="mb-2" style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '5px 10px',
+                            borderRadius: '5px',
+                            background: 'rgba(78, 219, 244, 0.1)'
+                          }}>
+                            <i className="fas fa-calendar-times me-2" style={{ 
+                              color: '#80f44e',
+                              animation: 'pulse 2s infinite 0.9s'
+                            }}></i>
+                            <strong>Deadline:</strong> <span className="ms-1">{new Date(internship.deadline).toLocaleDateString()}</span>
                           </p>
                         </div>
                       </div>
+                      
                       <button 
-                        className="btn btn-success w-100"
-                        style={styles.buttonPrimary}
+                        className="btn w-100"
+                        style={{
+                          ...styles.buttonPrimary,
+                          animation: 'fadeInUp 1.2s ease-out',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          marginTop: '10px'
+                        }}
                       >
+                        {/* Shine effect */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%)',
+                          transform: 'translateX(-100%)',
+                          animation: 'shine 3s infinite'
+                        }}></div>
                         <i className="fas fa-paper-plane me-2"></i>
                         Apply Now
                       </button>
@@ -815,39 +1521,125 @@ const NGODetail = () => {
               </div>
             )}
 
-            {/* Events Feed */}
+            {/* Events Feed with Enhanced Animations */}
             {activeTab === 'events' && (
               <div className="events-feed">
-                {events.map((event) => (
-                  <div key={event._id} className="card mb-4" style={styles.eventCard}>
-                    <img
-                      src={getSafeImageUrl(event.image)}
-                      className="card-img-top"
-                      alt={event.title}
-                      style={{ maxHeight: '300px', objectFit: 'cover' }}
-                    />
-                    <div className="card-body">
-                      <h5 className="card-title text-success">{event.title}</h5>
+                {events.map((event, index) => (
+                  <div 
+                    key={event._id} 
+                    className="card mb-4" 
+                    style={{
+                      ...styles.eventCard,
+                      animation: `fadeInUp 0.6s ease-out ${0.1 * index}s`,
+                      animationFillMode: 'both',
+                      transform: 'translateY(0)',
+                      transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                    }}
+                  >
+                    {/* Category-based image with NGO name overlay */}
+                    <div style={{ position: 'relative', overflow: 'hidden' }}>
+                      <img
+                        src={getCategoryImage(ngo.category)}
+                        className="card-img-top"
+                        alt={event.title}
+                        style={{ 
+                          maxHeight: '300px', 
+                          objectFit: 'cover',
+                          transition: 'all 0.5s ease',
+                          transform: 'scale(1)'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-end',
+                        padding: '20px'
+                      }}>
+                        <div style={{
+                          background: 'linear-gradient(135deg, rgba(128, 244, 78, 0.9) 0%, rgba(78, 219, 244, 0.9) 100%)',
+                          padding: '5px 15px',
+                          borderRadius: '20px',
+                          display: 'inline-block',
+                          alignSelf: 'flex-start',
+                          marginBottom: '10px',
+                          animation: 'pulse 2s infinite'
+                        }}>
+                          <span style={{ color: 'white', fontWeight: 'bold', fontSize: '0.8rem' }}>
+                            {ngo.category}
+                          </span>
+                        </div>
+                        <h3 style={{ 
+                          color: 'white', 
+                          textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                          animation: 'fadeInUp 0.8s ease-out'
+                        }}>
+                          {ngo.name}
+                        </h3>
+                      </div>
+                    </div>
+                    
+                    <div className="card-body" style={{ animation: 'fadeInUp 1s ease-out' }}>
+                      <h5 className="card-title" style={{ 
+                        background: 'linear-gradient(90deg, #80f44e, #4edbf4)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        display: 'inline-block',
+                        fontWeight: 'bold'
+                      }}>{event.title}</h5>
                       <p className="card-text">{event.description}</p>
-                      <div className="d-flex justify-content-between align-items-center">
+                      <div className="d-flex justify-content-between align-items-center flex-wrap">
                         <div>
-                          <p className="mb-2">
-                            <i className="far fa-calendar me-2" style={styles.icon}></i>
+                          <p className="mb-2" style={{ animation: 'fadeInLeft 0.8s ease-out' }}>
+                            <i className="far fa-calendar me-2" style={{
+                              ...styles.icon,
+                              animation: 'pulse 2s infinite'
+                            }}></i>
                             {new Date(event.date).toLocaleDateString()}
                           </p>
-                          <p className="mb-2">
-                            <i className="far fa-clock me-2" style={styles.icon}></i>
+                          <p className="mb-2" style={{ animation: 'fadeInLeft 1s ease-out' }}>
+                            <i className="far fa-clock me-2" style={{
+                              ...styles.icon,
+                              animation: 'pulse 2s infinite 0.3s'
+                            }}></i>
                             {event.time}
                           </p>
-                          <p className="mb-0">
-                            <i className="fas fa-map-marker-alt me-2" style={styles.icon}></i>
-                            {event.location}
+                          <p className="mb-0" style={{ animation: 'fadeInLeft 1.2s ease-out' }}>
+                            <i className="fas fa-map-marker-alt me-2" style={{
+                              ...styles.icon,
+                              animation: 'pulse 2s infinite 0.6s'
+                            }}></i>
+                            {/* Use NGO location instead of event location */}
+                            {ngo.location}
                           </p>
                         </div>
                         <button 
                           className="btn btn-success"
-                          style={styles.buttonPrimary}
+                          style={{
+                            ...styles.buttonPrimary,
+                            animation: 'fadeInRight 1s ease-out',
+                            position: 'relative',
+                            overflow: 'hidden'
+                          }}
                         >
+                          {/* Shine effect */}
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%)',
+                            transform: 'translateX(-100%)',
+                            animation: 'shine 3s infinite'
+                          }}></div>
                           <i className="fas fa-user-plus me-2"></i>
                           Register
                         </button>

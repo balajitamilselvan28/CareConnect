@@ -7,6 +7,120 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ngoLogo from '../ngo center logo.jpg';
 
+// Add custom animations for the donation form
+const animations = `
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+  }
+  
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .donation-input {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(128, 244, 78, 0.3);
+  }
+  
+  .donation-input:focus {
+    border-color: #4edbf4;
+    box-shadow: 0 0 0 0.25rem rgba(78, 219, 244, 0.25);
+    transform: translateY(-2px);
+  }
+  
+  .donation-label {
+    color: #008080;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .donation-card {
+    animation: fadeInUp 0.8s ease-out;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .donation-header {
+    background: linear-gradient(135deg, rgba(128, 244, 78, 0.2) 0%, rgba(78, 219, 244, 0.2) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 15s ease infinite;
+    padding: 20px;
+    border-bottom: 1px solid rgba(128, 244, 78, 0.2);
+  }
+  
+  .donation-title {
+    background: linear-gradient(90deg, #80f44e, #4edbf4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    position: relative;
+  }
+  
+  .donation-button {
+    background: linear-gradient(135deg, #008080 0%, #0066CC 100%);
+    border: none;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .donation-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 128, 128, 0.3);
+  }
+`;
+
+// Add the animations to the document
+const style = document.createElement('style');
+style.type = 'text/css';
+style.appendChild(document.createTextNode(animations));
+document.head.appendChild(style);
+
 const Donation = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -192,7 +306,7 @@ const Donation = () => {
       
       // Handle potential missing data with safe defaults
       const amount = donation.amount || '0';
-      doc.text(`Amount: $${amount}`, 25, 210);
+      doc.text(`Amount: ₹${amount}`, 25, 210);
       doc.text(`Payment Method: Credit Card`, 25, 218);
       
       // Safely access card number
@@ -403,70 +517,132 @@ const Donation = () => {
     <div className="container mt-5">
       <div className="row justify-content-center">
         <div className="col-md-8">
-          <div className="card">
-            <div className="card-body">
-              <h2 className="text-center mb-4">Donate to {ngo.name}</h2>
+          <div className="card donation-card">
+            <div className="donation-header">
+              <h2 className="text-center mb-0 donation-title">
+                Donate to {ngo.name}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-5px',
+                  left: '25%',
+                  width: '50%',
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #80f44e, #4edbf4)',
+                  borderRadius: '2px',
+                  animation: 'gradientShift 3s ease infinite'
+                }}></div>
+              </h2>
+            </div>
+            <div className="card-body p-4">
+              {/* Animated floating elements */}
+              <div style={{
+                position: 'absolute',
+                top: '15%',
+                right: '10%',
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(128, 244, 78, 0.4) 0%, rgba(78, 219, 244, 0.4) 100%)',
+                animation: 'pulse 4s ease-in-out infinite',
+                zIndex: 1
+              }}></div>
+              
+              <div style={{
+                position: 'absolute',
+                bottom: '20%',
+                left: '10%',
+                width: '20px',
+                height: '20px',
+                borderRadius: '8px',
+                transform: 'rotate(45deg)',
+                background: 'linear-gradient(135deg, rgba(78, 219, 244, 0.3) 0%, rgba(128, 244, 78, 0.3) 100%)',
+                animation: 'pulse 5s ease-in-out infinite 0.5s',
+                zIndex: 1
+              }}></div>
+              
               {error && (
-                <div className="alert alert-danger" role="alert">
+                <div className="alert alert-danger" role="alert" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
                   {error}
                 </div>
               )}
-              <form onSubmit={onSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="amount" className="form-label">
-                    Donation Amount
+              <form onSubmit={onSubmit} style={{ position: 'relative', zIndex: 2 }}>
+                <div className="mb-4" style={{ animation: 'fadeInUp 0.6s ease-out' }}>
+                  <label htmlFor="amount" className="form-label donation-label">
+                    <i className="fas fa-rupee-sign me-2" style={{ color: '#80f44e' }}></i>
+                    Donation Amount (₹)
                   </label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    id="amount"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={onChange}
-                    required
-                    min="1"
-                  />
+                  <div className="input-group">
+                    <span className="input-group-text" style={{ 
+                      background: 'linear-gradient(135deg, rgba(128, 244, 78, 0.2) 0%, rgba(78, 219, 244, 0.2) 100%)',
+                      border: '1px solid rgba(128, 244, 78, 0.3)',
+                      color: '#008080'
+                    }}>₹</span>
+                    <input
+                      type="number"
+                      className="form-control donation-input"
+                      id="amount"
+                      name="amount"
+                      value={formData.amount}
+                      onChange={onChange}
+                      required
+                      min="1"
+                      placeholder="1000"
+                      style={{ fontSize: '1.1rem' }}
+                    />
+                  </div>
+                  <small className="text-muted" style={{ display: 'block', marginTop: '5px' }}>
+                    Your contribution makes a real difference!
+                  </small>
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
+                
+                <div className="mb-4" style={{ animation: 'fadeInUp 0.7s ease-out' }}>
+                  <label htmlFor="name" className="form-label donation-label">
+                    <i className="fas fa-user me-2" style={{ color: '#4edbf4' }}></i>
                     Full Name
                   </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control donation-input"
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={onChange}
                     required
+                    placeholder="Your Name"
                   />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
+                
+                <div className="mb-4" style={{ animation: 'fadeInUp 0.8s ease-out' }}>
+                  <label htmlFor="email" className="form-label donation-label">
+                    <i className="fas fa-envelope me-2" style={{ color: '#80f44e' }}></i>
                     Email Address
                   </label>
                   <input
                     type="email"
-                    className="form-control"
+                    className="form-control donation-input"
                     id="email"
                     name="email"
                     value={formData.email}
                     onChange={onChange}
                     required
+                    placeholder="your.email@example.com"
                   />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="phone" className="form-label">
+                
+                <div className="mb-4" style={{ animation: 'fadeInUp 0.9s ease-out' }}>
+                  <label htmlFor="phone" className="form-label donation-label">
+                    <i className="fas fa-phone-alt me-2" style={{ color: '#4edbf4' }}></i>
                     Phone Number
                   </label>
                   <input
                     type="tel"
-                    className="form-control"
+                    className="form-control donation-input"
                     id="phone"
                     name="phone"
                     value={formData.phone}
                     onChange={onChange}
                     required
+                    placeholder="Your Phone Number"
                   />
                 </div>
                 <div className="mb-3">

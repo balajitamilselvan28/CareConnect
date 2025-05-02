@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Contexts
 import { AuthProvider } from './context/AuthContext';
@@ -17,6 +19,7 @@ import Donation from './pages/Donation';
 import Volunteer from './pages/Volunteer';
 import VolunteerCart from './pages/VolunteerCart';
 import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 
 // Components
@@ -31,8 +34,9 @@ function App() {
         <PostProvider>
           <Router>
             <div className="App">
+              <ToastContainer />
               <Navbar />
-              <div className="container">
+              <div>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/about" element={<About />} />
@@ -69,6 +73,14 @@ function App() {
                       <AdminRoute>
                         <AdminDashboard />
                       </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <PrivateRoute>
+                        <Profile />
+                      </PrivateRoute>
                     }
                   />
                   <Route path="*" element={<NotFound />} />
